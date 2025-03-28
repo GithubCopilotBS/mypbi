@@ -29,7 +29,7 @@ export interface CSVField {
 export interface ChartConfig {
   id: string;
   title: string;
-  type: 'bar' | 'line' | 'pie' | 'scatter';
+  type: 'bar' | 'line' | 'pie' | 'scatter' | 'doughnut' | 'polarArea' | 'radar' | 'bubble';
   xAxis?: CSVField;
   yAxis?: CSVField;
   colorBy?: CSVField;
@@ -38,4 +38,11 @@ export interface ChartConfig {
   showDataLabels: boolean;
   showGridLines: boolean;
   colorScheme: string;
+  // Advanced customization options
+  axisTitle?: string;
+  legendPosition?: 'top' | 'right' | 'bottom' | 'left';
+  beginAtZero?: boolean;
+  stacked?: boolean;
+  fontSize?: number;
+  aspectRatio?: number;
 }

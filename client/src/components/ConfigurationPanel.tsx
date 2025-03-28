@@ -132,6 +132,7 @@ export function ConfigurationPanel({
             <button 
               className={`p-2 border ${localConfig.type === 'bar' ? 'border-primary bg-blue-50' : 'border-gray-200'} rounded hover:bg-gray-50 flex flex-col items-center justify-center`}
               onClick={() => setLocalConfig({ ...localConfig, type: 'bar' })}
+              title="Bar Chart"
             >
               <i className={`fas fa-chart-bar ${localConfig.type === 'bar' ? 'text-primary' : 'text-gray-400'} text-lg`}></i>
               <span className="text-xs mt-1 text-gray-600">Bar</span>
@@ -139,6 +140,7 @@ export function ConfigurationPanel({
             <button 
               className={`p-2 border ${localConfig.type === 'line' ? 'border-primary bg-blue-50' : 'border-gray-200'} rounded hover:bg-gray-50 flex flex-col items-center justify-center`}
               onClick={() => setLocalConfig({ ...localConfig, type: 'line' })}
+              title="Line Chart"
             >
               <i className={`fas fa-chart-line ${localConfig.type === 'line' ? 'text-primary' : 'text-gray-400'} text-lg`}></i>
               <span className="text-xs mt-1 text-gray-600">Line</span>
@@ -146,6 +148,7 @@ export function ConfigurationPanel({
             <button 
               className={`p-2 border ${localConfig.type === 'pie' ? 'border-primary bg-blue-50' : 'border-gray-200'} rounded hover:bg-gray-50 flex flex-col items-center justify-center`}
               onClick={() => setLocalConfig({ ...localConfig, type: 'pie' })}
+              title="Pie Chart"
             >
               <i className={`fas fa-chart-pie ${localConfig.type === 'pie' ? 'text-primary' : 'text-gray-400'} text-lg`}></i>
               <span className="text-xs mt-1 text-gray-600">Pie</span>
@@ -153,9 +156,42 @@ export function ConfigurationPanel({
             <button 
               className={`p-2 border ${localConfig.type === 'scatter' ? 'border-primary bg-blue-50' : 'border-gray-200'} rounded hover:bg-gray-50 flex flex-col items-center justify-center`}
               onClick={() => setLocalConfig({ ...localConfig, type: 'scatter' })}
+              title="Scatter Plot"
             >
               <i className={`fas fa-braille ${localConfig.type === 'scatter' ? 'text-primary' : 'text-gray-400'} text-lg`}></i>
               <span className="text-xs mt-1 text-gray-600">Scatter</span>
+            </button>
+            <button 
+              className={`p-2 border ${localConfig.type === 'doughnut' ? 'border-primary bg-blue-50' : 'border-gray-200'} rounded hover:bg-gray-50 flex flex-col items-center justify-center`}
+              onClick={() => setLocalConfig({ ...localConfig, type: 'doughnut' })}
+              title="Doughnut Chart"
+            >
+              <i className={`fas fa-circle-notch ${localConfig.type === 'doughnut' ? 'text-primary' : 'text-gray-400'} text-lg`}></i>
+              <span className="text-xs mt-1 text-gray-600">Doughnut</span>
+            </button>
+            <button 
+              className={`p-2 border ${localConfig.type === 'polarArea' ? 'border-primary bg-blue-50' : 'border-gray-200'} rounded hover:bg-gray-50 flex flex-col items-center justify-center`}
+              onClick={() => setLocalConfig({ ...localConfig, type: 'polarArea' })}
+              title="Polar Area Chart"
+            >
+              <i className={`fas fa-sun ${localConfig.type === 'polarArea' ? 'text-primary' : 'text-gray-400'} text-lg`}></i>
+              <span className="text-xs mt-1 text-gray-600">Polar</span>
+            </button>
+            <button 
+              className={`p-2 border ${localConfig.type === 'radar' ? 'border-primary bg-blue-50' : 'border-gray-200'} rounded hover:bg-gray-50 flex flex-col items-center justify-center`}
+              onClick={() => setLocalConfig({ ...localConfig, type: 'radar' })}
+              title="Radar Chart"
+            >
+              <i className={`fas fa-spider ${localConfig.type === 'radar' ? 'text-primary' : 'text-gray-400'} text-lg`}></i>
+              <span className="text-xs mt-1 text-gray-600">Radar</span>
+            </button>
+            <button 
+              className={`p-2 border ${localConfig.type === 'bubble' ? 'border-primary bg-blue-50' : 'border-gray-200'} rounded hover:bg-gray-50 flex flex-col items-center justify-center`}
+              onClick={() => setLocalConfig({ ...localConfig, type: 'bubble' })}
+              title="Bubble Chart"
+            >
+              <i className={`fas fa-circle ${localConfig.type === 'bubble' ? 'text-primary' : 'text-gray-400'} text-lg`}></i>
+              <span className="text-xs mt-1 text-gray-600">Bubble</span>
             </button>
           </div>
         </div>
@@ -276,6 +312,9 @@ export function ConfigurationPanel({
                   <SelectItem value="monochrome">Monochrome</SelectItem>
                   <SelectItem value="categorical">Categorical</SelectItem>
                   <SelectItem value="diverging">Diverging</SelectItem>
+                  <SelectItem value="gradient">Gradient</SelectItem>
+                  <SelectItem value="pastel">Pastel</SelectItem>
+                  <SelectItem value="bold">Bold</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -318,6 +357,74 @@ export function ConfigurationPanel({
               />
               <Label htmlFor="show-grid-lines" className="ml-2 text-xs text-gray-700">Show grid lines</Label>
             </div>
+
+            {/* Advanced Settings - visible for relevant chart types */}
+            {(localConfig.type === 'bar' || localConfig.type === 'line' || localConfig.type === 'scatter' || 
+              localConfig.type === 'bubble' || localConfig.type === 'radar' || localConfig.type === 'polarArea') && (
+              <>
+                <div className="flex items-center mt-4">
+                  <Checkbox 
+                    id="begin-at-zero" 
+                    checked={localConfig.beginAtZero !== false}
+                    onCheckedChange={(checked) => 
+                      setLocalConfig({ ...localConfig, beginAtZero: checked as boolean })
+                    }
+                    className="rounded border-gray-300 text-primary focus:ring-primary"
+                  />
+                  <Label htmlFor="begin-at-zero" className="ml-2 text-xs text-gray-700">Begin Y-axis at zero</Label>
+                </div>
+              </>
+            )}
+
+            {/* Stacked option for bar/line charts */}
+            {(localConfig.type === 'bar' || localConfig.type === 'line') && (
+              <div className="flex items-center mt-2">
+                <Checkbox 
+                  id="stacked" 
+                  checked={localConfig.stacked || false}
+                  onCheckedChange={(checked) => 
+                    setLocalConfig({ ...localConfig, stacked: checked as boolean })
+                  }
+                  className="rounded border-gray-300 text-primary focus:ring-primary"
+                />
+                <Label htmlFor="stacked" className="ml-2 text-xs text-gray-700">Stacked chart</Label>
+              </div>
+            )}
+
+            {/* Legend Position */}
+            {localConfig.showLegend && (
+              <div className="mt-4">
+                <Label className="block text-xs font-medium text-gray-500 mb-1">Legend Position</Label>
+                <Select 
+                  value={localConfig.legendPosition || 'top'}
+                  onValueChange={(value) => setLocalConfig({ ...localConfig, legendPosition: value as 'top' | 'right' | 'bottom' | 'left' })}
+                >
+                  <SelectTrigger className="w-full rounded-md border border-gray-300 px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary">
+                    <SelectValue placeholder="Select position" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="top">Top</SelectItem>
+                    <SelectItem value="right">Right</SelectItem>
+                    <SelectItem value="bottom">Bottom</SelectItem>
+                    <SelectItem value="left">Left</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
+
+            {/* Axis Title */}
+            {(localConfig.type === 'bar' || localConfig.type === 'line' || localConfig.type === 'scatter' || localConfig.type === 'bubble') && (
+              <div className="mt-4">
+                <Label className="block text-xs font-medium text-gray-500 mb-1">Y-Axis Title</Label>
+                <Input
+                  type="text"
+                  value={localConfig.axisTitle || ''}
+                  onChange={(e) => setLocalConfig({ ...localConfig, axisTitle: e.target.value })}
+                  className="w-full rounded-md border border-gray-300 px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary"
+                  placeholder="Optional axis title"
+                />
+              </div>
+            )}
           </div>
         </div>
       </div>

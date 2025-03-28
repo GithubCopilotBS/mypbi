@@ -42,6 +42,27 @@ const COLOR_PALETTES = {
     'rgba(147, 197, 253, 0.7)', // light blue
     'rgba(59, 130, 246, 0.7)', // blue
   ],
+  gradient: [
+    'rgba(236, 72, 153, 0.7)', // pink
+    'rgba(217, 70, 239, 0.7)', // fuchsia
+    'rgba(168, 85, 247, 0.7)', // purple
+    'rgba(139, 92, 246, 0.7)', // violet
+    'rgba(99, 102, 241, 0.7)',  // indigo
+  ],
+  pastel: [
+    'rgba(254, 226, 226, 0.7)', // red-100
+    'rgba(254, 243, 199, 0.7)', // yellow-100
+    'rgba(209, 250, 229, 0.7)', // green-100
+    'rgba(219, 234, 254, 0.7)', // blue-100
+    'rgba(237, 233, 254, 0.7)', // purple-100
+  ],
+  bold: [
+    'rgba(220, 38, 38, 0.8)', // red-600
+    'rgba(217, 119, 6, 0.8)',  // amber-600
+    'rgba(5, 150, 105, 0.8)',  // emerald-600
+    'rgba(37, 99, 235, 0.8)',  // blue-600
+    'rgba(124, 58, 237, 0.8)', // violet-600
+  ],
 };
 
 // Border colors for each palette
@@ -74,6 +95,27 @@ const BORDER_PALETTES = {
     'rgba(147, 197, 253, 1)', // light blue
     'rgba(59, 130, 246, 1)', // blue
   ],
+  gradient: [
+    'rgba(236, 72, 153, 1)', // pink
+    'rgba(217, 70, 239, 1)', // fuchsia
+    'rgba(168, 85, 247, 1)', // purple
+    'rgba(139, 92, 246, 1)', // violet
+    'rgba(99, 102, 241, 1)',  // indigo
+  ],
+  pastel: [
+    'rgba(254, 202, 202, 1)', // red-200
+    'rgba(254, 240, 138, 1)', // yellow-200
+    'rgba(187, 247, 208, 1)', // green-200
+    'rgba(191, 219, 254, 1)', // blue-200
+    'rgba(221, 214, 254, 1)', // purple-200
+  ],
+  bold: [
+    'rgba(185, 28, 28, 1)', // red-700
+    'rgba(180, 83, 9, 1)',  // amber-700
+    'rgba(4, 120, 87, 1)',  // emerald-700
+    'rgba(29, 78, 216, 1)',  // blue-700
+    'rgba(109, 40, 217, 1)', // violet-700
+  ],
 };
 
 /**
@@ -99,10 +141,12 @@ export function suggestChartType(
   
   // If both are dimensions, use pie chart
   if (xAxisField.type === 'dimension' && yAxisField.type === 'dimension') {
+    // For categorical dimensions with few values, pie/doughnut are good
+    // For those with many values, radar might be better
     return 'pie';
   }
   
-  // If both are measures, use scatter chart
+  // If both are measures, use scatter chart or bubble chart
   if (xAxisField.type === 'measure' && yAxisField.type === 'measure') {
     return 'scatter';
   }
@@ -192,10 +236,12 @@ export function generateChartConfig(
     data: chartData,
     options: {
       responsive: true,
-      maintainAspectRatio: false,
+      maintainAspectRatio: config.aspectRatio ? true : false,
+      aspectRatio: config.aspectRatio || 2,
       plugins: {
         legend: {
           display: config.showLegend,
+          position: config.legendPosition || 'top',
         },
         tooltip: {
           callbacks: {
@@ -219,7 +265,8 @@ export function generateChartConfig(
           display: config.showDataLabels,
           color: '#333',
           font: {
-            weight: 'bold'
+            weight: 'bold',
+            size: config.fontSize || 12
           },
           formatter: (value: number) => value.toLocaleString()
         }
@@ -235,7 +282,12 @@ export function generateChartConfig(
         ...baseConfig.options,
         scales: {
           y: {
-            beginAtZero: true,
+            beginAtZero: config.beginAtZero !== undefined ? config.beginAtZero : true,
+            stacked: config.stacked || false,
+            title: {
+              display: !!config.axisTitle,
+              text: config.axisTitle || ''
+            },
             grid: {
               display: config.showGridLines
             },
@@ -246,6 +298,7 @@ export function generateChartConfig(
             }
           },
           x: {
+            stacked: config.stacked || false,
             grid: {
               display: config.showGridLines
             }
@@ -255,19 +308,29 @@ export function generateChartConfig(
     };
   }
   
-  // Pie chart specific options
-  if (chartType === 'pie') {
-    return baseConfig;
+  // Pie/Doughnut chart specific options
+  if (chartType === 'pie' || chartType === 'doughnut') {
+    const chartConfig = { ...baseConfig };
+    // Set cutout percentage for doughnut charts
+    if (chartType === 'doughnut') {
+      (chartConfig as any).options.cutout = '50%';
+    }
+    return chartConfig;
   }
   
-  // Scatter chart specific options
-  if (chartType === 'scatter') {
+  // Scatter/Bubble chart specific options
+  if (chartType === 'scatter' || chartType === 'bubble') {
     return {
       ...baseConfig,
       options: {
         ...baseConfig.options,
         scales: {
           y: {
+            beginAtZero: config.beginAtZero !== undefined ? config.beginAtZero : true,
+            title: {
+              display: !!config.axisTitle,
+              text: config.axisTitle || ''
+            },
             grid: {
               display: config.showGridLines
             },
@@ -281,6 +344,26 @@ export function generateChartConfig(
             grid: {
               display: config.showGridLines
             },
+            ticks: {
+              callback: function(value: any) {
+                return value.toLocaleString();
+              }
+            }
+          }
+        }
+      }
+    };
+  }
+  
+  // Radar and PolarArea chart options
+  if (chartType === 'radar' || chartType === 'polarArea') {
+    return {
+      ...baseConfig,
+      options: {
+        ...baseConfig.options,
+        scales: {
+          r: {
+            beginAtZero: config.beginAtZero !== undefined ? config.beginAtZero : true,
             ticks: {
               callback: function(value: any) {
                 return value.toLocaleString();

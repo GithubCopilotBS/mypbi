@@ -3,6 +3,7 @@ import Chart from 'chart.js/auto';
 import { Sliders, Download, X } from 'lucide-react';
 import { ChartConfig } from '@shared/schema';
 import { prepareChartData, generateChartConfig } from '@/lib/chartUtils';
+import { useToast } from '@/hooks/use-toast';
 
 interface ChartContainerProps {
   data: any[];
@@ -15,6 +16,51 @@ interface ChartContainerProps {
 export function ChartContainer({ data, config, onRemove, onEdit, onDownload }: ChartContainerProps) {
   const chartRef = useRef<HTMLCanvasElement | null>(null);
   const chartInstance = useRef<Chart | null>(null);
+  const { toast } = useToast();
+  
+  // Handle downloading the chart as an image
+  const handleDownload = () => {
+    if (!chartRef.current) {
+      toast({
+        title: "Error",
+        description: "Chart canvas not available.",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    try {
+      // Create a temporary link element
+      const link = document.createElement('a');
+      
+      // Get chart data URL (PNG format)
+      const dataUrl = chartRef.current.toDataURL('image/png');
+      
+      // Set download attributes
+      link.download = `${config.title || 'chart'}.png`;
+      link.href = dataUrl;
+      
+      // Append, click and remove the link
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      
+      toast({
+        title: "Success",
+        description: `Chart "${config.title}" downloaded successfully.`,
+      });
+      
+      // Call the parent handler too
+      onDownload(config.id);
+    } catch (error) {
+      console.error('Error downloading chart:', error);
+      toast({
+        title: "Download failed",
+        description: "Could not download the chart. Please try again.",
+        variant: "destructive"
+      });
+    }
+  };
   
   useEffect(() => {
     if (!chartRef.current || !data || data.length === 0) return;
@@ -62,7 +108,7 @@ export function ChartContainer({ data, config, onRemove, onEdit, onDownload }: C
           <button 
             className="text-gray-400 hover:text-gray-600 p-1" 
             title="Download Chart"
-            onClick={() => onDownload(config.id)}
+            onClick={handleDownload}
           >
             <Download className="h-4 w-4" />
           </button>
