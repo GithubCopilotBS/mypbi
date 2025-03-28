@@ -3,8 +3,19 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="CSV Visualization App - Create custom charts from your data" />
     <title>CSV Visualization App</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- GitHub Pages base path fix -->
+    <script>
+      // This helps with GitHub Pages routing when using a sub-path
+      (function() {
+        const { pathname } = window.location;
+        if (pathname.match(/^\/?mypbi\/?$/)) {
+          window.history.replaceState(null, document.title, pathname.replace(/^\/?mypbi\/?$/, '/mypbi/'));
+        }
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>
